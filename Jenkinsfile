@@ -4,23 +4,34 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Code is already on GitHub!'
+                echo 'Code checked out from GitHub'
             }
         }
-        stage('Compile') {
+        stage('Build') {
             steps {
-                sh 'javac Hello.java'
-                sh 'javac HelloTest.java'
+                sh 'mvn clean compile'
             }
         }
         stage('Test') {
             steps {
-                sh 'java HelloTest'
+                sh 'mvn test'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+        stage('Package') {
+            steps {
+                sh 'mvn package'
             }
         }
         stage('Run') {
             steps {
-                sh 'java Hello'
+                sh 'java -cp target/classes com.example.Hello'
             }
         }
     }
