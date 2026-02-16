@@ -56,7 +56,12 @@ pipeline {
         
         stage('Docker Push') {
             steps {
-                sh 'docker push adarsh7890/my-first-app:latest'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push adarsh7890/my-first-app:latest
+                    '''
+                }
             }
         }
         
