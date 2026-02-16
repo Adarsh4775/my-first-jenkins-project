@@ -41,13 +41,24 @@ pipeline {
         sh 'trivy fs --severity HIGH,CRITICAL --no-progress .'
     }
 }
-        
+
+        stage('Docker Build') {
+    steps {
+        sh 'docker build -t adarsh7890/my-first-app:latest .'
+    }
+}
+
+stage('Docker Push') {
+    steps {
+        sh 'docker push adarsh7890/my-first-app:latest'
+    }
+}
         stage('Package') {
             steps {
                 sh 'mvn package'
             }
-        }
-        
+        } 
+    
         stage('Debug - Check Files') {
             steps {
                 sh 'echo "===== CHECKING COMPILED CLASSES ====="'
