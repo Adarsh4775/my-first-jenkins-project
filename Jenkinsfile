@@ -35,7 +35,13 @@ pipeline {
         }
     }
 }
-       
+
+        stage('Security Scan') {
+    steps {
+        sh 'trivy fs --severity HIGH,CRITICAL --no-progress .'
+    }
+}
+        
         stage('Package') {
             steps {
                 sh 'mvn package'
