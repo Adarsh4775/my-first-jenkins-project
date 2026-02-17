@@ -50,6 +50,20 @@ pipeline {
             }
         }
         
+        stage('Upload to Artifactory') {
+            steps {
+                rtUpload(
+                    serverId: 'artifactory',
+                    spec: '''{
+                        "files": [{
+                            "pattern": "target/*.jar",
+                            "target": "libs-snapshot-local/"
+                        }]
+                    }'''
+                )
+            }
+        }
+        
         stage('Docker Build') {
             steps {
                 sh 'docker build -t adarsh7890/my-first-app:latest .'
@@ -83,9 +97,34 @@ pipeline {
     post {
         success {
             echo 'Pipeline executed successfully!'
+            emailext(
+                to: 'adarshpujari22100@gmail.com',
+                subject: "✅ SUCCESS: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Pipeline Executed Successfully!</h2>
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
+                    <p><b>URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    <p><b>Docker Image:</b> adarsh7890/my-first-app:latest</p>
+                    <p><b>Artifactory:</b> libs-snapshot-local/my-first-app-1.0-SNAPSHOT.jar</p>
+                """,
+                mimeType: 'text/html'
+            )
         }
         failure {
             echo 'Pipeline failed!'
+            emailext(
+                to: 'adarshpujari22100@gmail.com',
+                subject: "❌ FAILED: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Pipeline Failed!</h2>
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
+                    <p><b>URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    <p>Check console output for details.</p>
+                """,
+                mimeType: 'text/html'
+            )
         }
     }
 }
