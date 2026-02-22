@@ -47,21 +47,7 @@ pipeline {
                 sh 'mvn package'
             }
         }
-        
-        stage('Upload to Artifactory') {
-            steps {
-                rtUpload(
-                    serverId: 'artifactory',
-                    spec: '''{
-                        "files": [{
-                            "pattern": "target/*.jar",
-                            "target": "libs-snapshot-local/"
-                        }]
-                    }'''
-                )
-            }
-        }
-        
+              
         stage('Docker Build') {
             steps {
                 sh 'docker build -t adarsh7890/my-first-app:latest .'
